@@ -4,7 +4,7 @@ import time
 
 with open("C:\\Users\\shahs\\Documents\\test\\data\\rockyou.txt", 'r', encoding='utf-8', errors='ignore') as f:
     passwords = f.readlines()
-    
+
 passwords = [i[:-1] for i in passwords]
 
 start = time.time()

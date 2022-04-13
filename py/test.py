@@ -1,71 +1,32 @@
-from selenium import webdriver
-from time import sleep
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-import xlsxwriter
+import pandas as pd
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn import metrics
+from sklearn.tree import export_graphviz 
+from IPython.display import Image  
+import pydotplus
+from six import StringIO
 
+col_names = ['pregnant', 'glucose', 'bp', 'skin', 'insulin', 'bmi', 'pedigree', 'age', 'label']
 
-def getCompanyInfo(link):
-    driver.get(link)
+pima = pd.read_csv("C:\\Users\\shahs\\Documents\\test\\data\\diabetes.csv", header=None, names=col_names)[1:]
 
-    company_name = driver.find_element(by=By.CLASS_NAME, value="item-title").text
-    addresses = driver.find_element(by=By.CLASS_NAME, value="lh-md")
-    addresses = addresses.text.split('\n')
-    if len(addresses) == 2:
-        address, city = addresses
-        postcode = 'None'
+# split dataset in features and target variable
+feature_cols = ['pregnant', 'insulin', 'bmi', 'age','glucose','bp','pedigree']
+x = pima[feature_cols] # Features
+y = pima.label # Target variable
 
-    else: address, postcode, city = addresses
+# Split dataset into training set and test set
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.3, random_state=1)
 
-    sleep(1)
-    driver.find_element(by=By.ID, value='telephone-entreprise').click()
-    sleep(0.3)
-    telephone = driver.find_element(by=By.CLASS_NAME, value="phone-container").text
-    
-    while not telephone:
-        driver.get(link)
-        sleep(1)
-        driver.find_element(by=By.ID, value='telephone-entreprise').click()
-        sleep(0.3)
-        telephone = driver.find_element(by=By.CLASS_NAME, value="phone-container").text
-    
-    box = driver.find_element(by=By.CLASS_NAME, value='md-down-mb-lg')
-    box = box.text.split('\n')
+clf = DecisionTreeClassifier()
 
-    s = ''
-    for i in box:
-        if i[0] == '-':
-            s += '|'.join(i.split('\n')) + '|'
-    
-    return [company_name, s, address, postcode, city, telephone]
+clf = clf.fit(x_train, y_train)
 
-def writeToXlsx(column_names, column_title, data, file_name):
-    with xlsxwriter.Workbook(file_name + '.xlsx') as workbook:
-        worksheet = workbook.add_worksheet()
-        
-        for i, cn in enumerate(column_names):
-            worksheet.write(f'{cn}1', column_title[i])
-        
-        for i, d in enumerate(data):
-            for j, cn in enumerate(column_names):
-                worksheet.write(f'{cn}{i+2}', d[j])
-
-if __name__ == "__main__":
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option('excludeSwitches', ['enable-logging'])
-    driver_path = "C:\\Users\\shahs\\Documents\\chromedriver.exe"
-    driver = webdriver.Chrome(service=Service(driver_path), options=options)
-    driver.get("https://www.qualit-enr.org/annuaire/?type=installateurs-photovoltaique&ville=01")
-
-    link_data = driver.find_elements(by=By.CLASS_NAME, value="results-item")
-
-    links = [i.get_attribute('href') for i in link_data]
-    driver.get(links[0])
-
-    data = []
-    for link in links:
-        data.append(getCompanyInfo(link))
-
-    column_names = ['A','B','C','D','E','F']
-    column_title = ['Company Name', 'Nos compétences', 'Address', 'Postcode', 'City', 'Telephone']
-    writeToXlsx(column_names, column_title, data, 'qualit-enr')
+dot_data = StringIO()
+export_graphviz(clf, out_file=dot_data,  
+                filled=True, rounded=True,
+                special_characters=True,feature_names = feature_cols,class_names=['0','1'])
+graph = pydotplus.graph_from_dot_data(dot_data.getvalue())  
+graph.write_png('car.png')
+Image(graph.create_png())
