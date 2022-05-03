@@ -42,7 +42,7 @@ if __name__ == '__main__':
     cursor = con.cursor()
 
     start = 'S0'
-    stop = 'S9'
+    stop = 'S10'
     path = [start]
     result = 0
     results = {}
@@ -61,5 +61,3 @@ if __name__ == '__main__':
     print('Time: ', finish_time - start_time)
     print('Path count: ', len(results))
     print(max_path, '-', max_value)
-
-    
