@@ -1,4 +1,5 @@
 __pycache__
+.pytest_cache
 rockyou.txt
 rockyou_sorted.txt
 test.txt

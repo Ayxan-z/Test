@@ -42,7 +42,7 @@ if __name__ == '__main__':
     cursor = con.cursor()
 
     start = 'S0'
-    stop = 'S10'
+    stop = 'S9'
     path = [start]
     result = 0
     results = {}

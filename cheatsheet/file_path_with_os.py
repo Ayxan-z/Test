@@ -1,3 +1,4 @@
+# 3.10.3
 from PIL import Image                                                                                
 import os
 
