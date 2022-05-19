@@ -1,6 +1,7 @@
-import chess
 import chess.polyglot
+import chess
 from os import system
+from typing import List, Union
 
 class ChessAI():
     def __init__(self):
@@ -64,8 +65,8 @@ class ChessAI():
 
     def gameCheck(self):
         if self.board.is_checkmate():
-            if self.board.turn: return 'WINNER: Black'
-            else: return 'WINNER: White'
+            if self.board.turn: return 'Black'
+            else: return 'White'
 
         if self.board.is_stalemate() or self.board.is_insufficient_material(): 
             return 'Scorless'
@@ -121,7 +122,6 @@ class ChessAI():
                 self.board.pop()
 
                 if (score >= beta): return beta
-
                 if (score > alpha): alpha = score
 
         return alpha
@@ -130,7 +130,7 @@ class ChessAI():
         bestscore = -9999
         if (depthleft == 0):
             return self.__quiesce(alpha, beta)
-        
+
         for move in self.board.legal_moves:
             self.board.push(move)
             score = -self.__alphabeta(-beta, -alpha, depthleft - 1)
@@ -161,10 +161,10 @@ class ChessAI():
                 self.board.pop()
             return bestMove
 
-def humanVsAI():
+def humanVsAI() -> Union[List[str], str]:
     game = ChessAI()
     print(game.board)
-
+    l = []
     while 1:
         while 1:
             x = input('--> ')
@@ -173,42 +173,52 @@ def humanVsAI():
                 break
             except: print('wrong way!')
 
-        if game.gameCheck():
-            print(game.gameCheck())
+        ctr = game.gameCheck()
+        if ctr:
+            print('WINNER:', ctr)
             break
+        l.append(x)
 
         mov = game.move(3)
         game.board.push(mov)
         system('cls')
         print(game.board)
-        if game.gameCheck():
-            print(game.gameCheck())
+        ctr = game.gameCheck()
+        if ctr:
+            print('WINNER:', ctr)
             break
+        l.append(mov.uci())
 
     print(game.board)
+    return l, ctr
 
-def AIvsAI():
+def AIvsAI() -> Union[List[str], str]:
     game = ChessAI()
     print(game.board)
-
+    l = []
     while 1:
-        mov = game.move(3)
+        mov = game.move(1)
         game.board.push(mov)
-        if game.gameCheck():
-            print(game.gameCheck())
+        ctr = game.gameCheck()
+        if ctr:
+            print('WINNER:', ctr)
             break
+        l.append(mov.uci())
 
-        mov = game.move(3)
+        mov = game.move(2)
         game.board.push(mov)
         system('cls')
         print(game.board)
-        if game.gameCheck():
-            print(game.gameCheck())
+        ctr = game.gameCheck()
+        if ctr:
+            print('WINNER:', ctr)
             break
+        l.append(mov.uci())
 
-    system('cls')
     print(game.board)
+    return l, ctr
 
 if __name__ == '__main__':
-    # humanVsAI()
-    AIvsAI()
+    # game_data, winner = humanVsAI() # game_data = ways(double-white, double-black), winner('Scoreless', 'White', 'Black')
+    game_data, winner = AIvsAI()
+    print(game_data, winner)
