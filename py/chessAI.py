@@ -63,13 +63,13 @@ class ChessAI():
     -30, -40, -40, -50, -50, -40, -40, -30,
     -30, -40, -40, -50, -50, -40, -40, -30]
 
-    def gameCheck(self):
+    def gameCheck(self) -> str:
         if self.board.is_checkmate():
             if self.board.turn: return 'Black'
             else: return 'White'
 
         if self.board.is_stalemate() or self.board.is_insufficient_material(): 
-            return 'Scorless'
+            return 'Draw'
 
     def __totalNumberOfPieces(self):
         self.wp = len(self.board.pieces(chess.PAWN, chess.WHITE))
@@ -140,7 +140,7 @@ class ChessAI():
             if (score > alpha): alpha = score
         return bestscore
 
-    def move(self, depth):
+    def move(self, depth: int) -> chess.Move:
         try:
             move = chess.polyglot.MemoryMappedReader("../data/human_chess.bin").weighted_choice(self.board).move
             return move
@@ -160,6 +160,23 @@ class ChessAI():
                     alpha = boardValue
                 self.board.pop()
             return bestMove
+
+
+def boardToMatrix(board: chess.Board()) -> List[List[str]]:
+    pgn = board.epd()
+    foo = []
+    pieces = pgn.split(" ", 1)[0]
+    rows = pieces.split("/")
+    for row in rows:
+        foo2 = []
+        for thing in row:
+            if thing.isdigit():
+                for i in range(0, int(thing)):
+                    foo2.append('')
+            else:
+                foo2.append(thing)
+        foo.append(foo2)
+    return foo
 
 def humanVsAI() -> Union[List[str], str]:
     game = ChessAI()
@@ -203,7 +220,7 @@ def AIvsAI() -> Union[List[str], str]:
         if ctr:
             print('WINNER:', ctr)
             break
-        l.append(mov.uci())
+        l.append(boardToMatrix(game.board)) # mov.uci()
 
         mov = game.move(2)
         game.board.push(mov)
@@ -213,12 +230,14 @@ def AIvsAI() -> Union[List[str], str]:
         if ctr:
             print('WINNER:', ctr)
             break
-        l.append(mov.uci())
+        l.append(boardToMatrix(game.board)) # mov.uci()
 
     print(game.board)
     return l, ctr
 
 if __name__ == '__main__':
-    # game_data, winner = humanVsAI() # game_data = ways(double-white, double-black), winner('Scoreless', 'White', 'Black')
+    games = []
+    # game_data, winner = humanVsAI() # game_data = ways(double-white, double-black), winner('Draw', 'White', 'Black')
     game_data, winner = AIvsAI()
-    print(game_data, winner)
+    games.append([game_data, winner])
+    print(games)
